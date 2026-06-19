@@ -47,16 +47,39 @@ async def root():
                             .catch(error => {{
                                 console.error('Error:', error);
                             }});
-                    }}
+                    }};
+                    function joinRoom(roomCode) {{
+                        fetch(`/bot/join/${{roomCode}}`, {{ method: 'GET' }})
+                            .then(response => response.json())
+                            .then(data => {{
+                                console.log(data);
+                            }})
+                            .catch(error => {{
+                                console.error('Error:', error);
+                            }});
+                    }};
                 </script>
                 <h1>Snake Bot</h1>
                 <p>Room Code: {room_code}</p>
-                <a href="https://{domain}/?room={room_code}" target="_blank">参加</a>
+                <a href="https://{domain}/?room={room_code}" target="_blank">http://{domain}/?room={room_code}</a>
                 <br>
             <button onclick="startGame('{bot_id}')">ゲームを開始(5秒後)</button>
+            <button onclick="joinRoom('{room_code}')">botを追加</button>
+            <br>
+            <iframe src="https://{domain}/?room={room_code}" width="1200" height="900"></iframe>
             </body>
         </html>
     """)
+
+@app.get("/bot/join/{room_code}")
+async def join_room(room_code: str):
+    bot_name = "snake-bot"
+    bot = SnakeBot(f"wss://snake-play.ugk.app/ws", bot_name)
+    bot_id = str(uuid.uuid4())
+    active_bots[bot_id] = bot
+    asyncio.create_task(bot.start_as_player(room_code))
+    asyncio.create_task(timeout_bot(bot_id))
+    return {"message": "Joined room.", "bot_id": bot_id}
 
 @app.get("/bot/{bot_id}/start-game")
 async def start_game(bot_id: str):
