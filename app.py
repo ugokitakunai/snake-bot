@@ -87,7 +87,6 @@ async def start_game(bot_id: str):
     if not bot:
         return {"error": "Bot not found."}
     
-    await asyncio.sleep(2)
     await bot.start_game()
     return {"message": "Game started."}
 
