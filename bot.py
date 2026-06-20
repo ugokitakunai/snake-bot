@@ -124,10 +124,11 @@ class SnakeBot:
         
         enemy_heads = []
         for snake in snakes:
-            if not snake.get("alive"): 
-                continue
             for seg in snake.get("segments", []):
                 danger_tiles.add(f"{seg['x']},{seg['y']}")
+
+            if not snake.get("alive"):
+                continue
             
             if snake.get("playerId") != self.player_id:
                 e_segments = snake.get("segments", [None])
